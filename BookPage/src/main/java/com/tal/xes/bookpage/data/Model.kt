@@ -1,6 +1,8 @@
 package com.tal.xes.bookpage.data
 
+import com.tal.xes.bookpage.func.getSymmetricalPoint
 import kotlin.math.atan
+import kotlin.math.sqrt
 import kotlin.math.tan
 
 
@@ -83,6 +85,26 @@ internal data class AllPoints(
         W.toCartesianSystem(),
         Z.toCartesianSystem()
     )
+
+    internal fun getSymmetricalPointAboutLine(line: Line) = with(line) {
+        AllPoints(
+            O.getSymmetricalPoint(this),
+            A.getSymmetricalPoint(this),
+            B.getSymmetricalPoint(this),
+            C.getSymmetricalPoint(this),
+            H.getSymmetricalPoint(this),
+            I.getSymmetricalPoint(this),
+            J.getSymmetricalPoint(this),
+            M.getSymmetricalPoint(this),
+            N.getSymmetricalPoint(this),
+            S.getSymmetricalPoint(this),
+            T.getSymmetricalPoint(this),
+            U.getSymmetricalPoint(this),
+            V.getSymmetricalPoint(this),
+            W.getSymmetricalPoint(this),
+            Z.getSymmetricalPoint(this)
+        )
+    }
 }
 
 internal data class Line(val k: Float, val b: Float) {
@@ -220,4 +242,46 @@ internal data class Point(
     companion object{
         val ZERO = Point(0f, 0f)
     }
+}
+
+/**
+ * QuadraticEquationWithOneUnknown class representing a quadratic equation of the form ax^2 + bx + c = 0.
+ *
+ * @property a The coefficient of x^2.
+ * @property b The coefficient of x.
+ * @property c The constant term.
+ */
+internal data class QuadraticEquationWithOneUnknown(val a: Float, val b: Float, val c: Float) {
+    fun solve(): Array<Float> {
+        val delta = b * b - 4 * a * c
+        return if (delta < 0) emptyArray() else arrayOf((-b + sqrt(delta)) / (2 * a), (-b - sqrt(delta)) / (2 * a))
+    }
+}
+
+internal data class FloatRange(val start: Float, val end: Float){
+    fun constraints(value: Float) = when {
+        end in start .. value -> end
+        start in value .. end -> start
+        end in value .. start -> end
+        start in end .. value -> start
+        else -> value
+    }
+
+    fun linearMapping(nowValue: Float, newRange: FloatRange): Float {
+        val min2 = newRange.start
+        val max2 = newRange.end
+        return min2 + (max2 - min2) * (nowValue - start) / (end - start)
+    }
+
+    fun linearMappingWithConstraints(nowValue: Float, newRange: FloatRange): Float {
+        return when {
+            end in start..nowValue -> newRange.end
+            start in nowValue..end -> newRange.start
+            end in nowValue..start -> newRange.end
+            start in end..nowValue -> newRange.start
+            else -> linearMapping(nowValue, newRange)
+        }
+    }
+
+    fun contains(value: Float) = value in start..end || value in end..start
 }

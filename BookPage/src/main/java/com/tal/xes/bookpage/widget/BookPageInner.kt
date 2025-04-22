@@ -170,3 +170,4 @@ private fun algorithmStateWMin(absO: Point, absTouchPoint:Point, absC: Point, f:
 
     return Triple(lineCH.theta(), E.x - W.x, allPoints)
 }
+
