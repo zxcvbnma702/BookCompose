@@ -186,7 +186,7 @@ internal data class Line(val k: Float, val b: Float) {
          * @param theta The angle in radians.
          * @return The slope of the line.
          */
-        fun k(theta: Float): Float = when {
+        fun getK(theta: Float): Float = when {
                 theta > 0 -> tan(theta.toDouble()).toFloat()
                 theta < 0 -> tan(theta.toDouble()).toFloat()
                 else -> 0f
