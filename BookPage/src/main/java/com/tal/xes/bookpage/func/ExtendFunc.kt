@@ -2,6 +2,8 @@ package com.tal.xes.bookpage.func
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
+import com.tal.xes.bookpage.data.DragDirection
+import com.tal.xes.bookpage.data.DragEvent
 import com.tal.xes.bookpage.data.Line
 import com.tal.xes.bookpage.data.Point
 import kotlin.math.PI
@@ -97,3 +99,17 @@ internal fun Point.avoidNaN() = if (x.isNaN() || y.isNaN()) Point(0f, 0f) else t
 
 private fun Float.toRad() = ((this * PI) / 180).toFloat()
 private fun Float.toDeg() = (this * 180 / PI).toFloat()
+
+/**
+ * This function is used to check if a drag direction is in a specified set of directions.
+ */
+internal fun DragDirection.isIn(vararg directions: DragDirection) = directions.contains(this)
+
+/**
+ * This function is used to get the symmetrical point of a drag event with respect to a line in 2D space.
+ */
+internal fun DragEvent.getSymmetricalPoint(line: Line) = with(line) {
+    val newOrigin = originTouchPoint.getSymmetricalPoint(this)
+    val newCurrent = currentTouchPoint.getSymmetricalPoint(this)
+    DragEvent(newOrigin, newCurrent)
+}
