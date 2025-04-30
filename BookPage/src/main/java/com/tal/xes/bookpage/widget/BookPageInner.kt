@@ -3,11 +3,9 @@ package com.tal.xes.bookpage.widget
 import com.tal.xes.bookpage.data.AllPoints
 import com.tal.xes.bookpage.data.Line
 import com.tal.xes.bookpage.data.Line.Companion.getK
-import com.tal.xes.bookpage.data.Line.Companion.k
 import com.tal.xes.bookpage.data.Point
 import com.tal.xes.bookpage.func.distanceTo
 import kotlin.math.PI
-import kotlin.math.max
 
 private enum class PageState{
     Loose,
@@ -273,4 +271,73 @@ private fun algorithmStateThetaMin(absO: Point, absTouchPoint: Point, absC: Poin
     )
 
     return Pair(E.x - W.x, allPoints)
+}
+
+/**
+ * Tight 状态下点坐标计算
+ * @param absO 页面左上角坐标点
+ * @param absC 页面右下角坐标点
+ * @param theta 书页翻转角度
+ * @see <a href="https://www.bilibili.com/video/BV1s24y1A7xM/?share_source=copy_web&vd_source=065c25bf82a5ae486ae89a36b38885e3&t=4244">Jetpack Compose 仿真书籍翻页算法原理 PTQBookPageView源码分享</a> — 【精准空降到 1:04:04】
+ */
+private fun algorithmStateTight(absO: Point, absC: Point, theta: Float): Pair<Line, AllPoints>{
+    val C = absC.toCartesianSystem()
+    // 计算页面左下角坐标点
+    val A = Point(absO.x, C.y)
+    // 计算页面右上角坐标点
+    val B = Point(C.x, absO.y)
+
+    // 已知 Theta 获取 CH 斜率
+    val kCH = getK(theta)
+    val kEF = -1 / kCH
+
+    val minWE = stateTightMinWERatio * C.x
+
+    val W = Point(minWxRatio * C.x, C.y)
+    val Z = Point(C.x, C.y + kEF * (C.x - W.x))
+
+    val E = Point(W.x + minWE, C.y)
+    val S = E..W
+
+    val lineCH = Line.withKAndOnePoint(kCH, C)
+    val lineEF = Line.withKAndOnePoint(kEF, E)
+    val lineST = Line.withKAndOnePoint(kEF, S)
+    val lineWZ = Line.withKAndOnePoint(kEF, W)
+
+    val T = Point(C.x, lineST.getY(C.x))
+    val F = Point(C.x, lineEF.getY(C.x))
+
+    val P = lineEF.intersection(lineCH)
+    val H = Point(2 * P.x - C.x, 2 * P.y - C.y)
+
+    val lineEH = Line.withTwoPoints(E, H)
+    val lineFH = Line.withTwoPoints(F, H)
+
+    val I = lineWZ.intersection(lineEH)
+    val J = lineWZ.intersection(lineFH)
+    val U = lineST.intersection(lineEH)
+    val V = lineST.intersection(lineFH)
+
+    val M = U .. S
+    val N = V .. T
+
+    val allPoints = AllPoints(
+        O = absO,
+        A = A,
+        B = B,
+        C = C,
+        H = H,
+        I = I,
+        J = J,
+        M = M,
+        N = N,
+        S = S,
+        T = T,
+        U = U,
+        V = V,
+        W = W,
+        Z = Z
+    )
+
+    return Pair(lineFH, allPoints)
 }

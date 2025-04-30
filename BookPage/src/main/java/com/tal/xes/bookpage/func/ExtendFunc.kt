@@ -1,10 +1,10 @@
 package com.tal.xes.bookpage.func
 
-import androidx.compose.ui.geometry
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
 import com.tal.xes.bookpage.data.Line
 import com.tal.xes.bookpage.data.Point
+import kotlin.math.PI
 import kotlin.math.pow
 import kotlin.math.sqrt
 
