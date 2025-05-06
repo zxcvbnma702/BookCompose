@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.tal.xes.bookcompose.ui.theme.BookComposeTheme
+import com.tal.xes.vulkan.NativeLib
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,7 +22,7 @@ class MainActivity : ComponentActivity() {
             BookComposeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
-                        name = "Android",
+                        name = NativeLib().stringFromJNI(),
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -42,6 +43,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     BookComposeTheme {
-        Greeting("Android")
+        Greeting(NativeLib().stringFromJNI())
     }
 }

@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 rootProject.name = "BookCompose"
 include(":app")
 include(":BookPage")
+include(":RenderNative")
