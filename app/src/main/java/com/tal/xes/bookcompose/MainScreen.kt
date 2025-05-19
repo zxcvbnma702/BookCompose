@@ -20,7 +20,7 @@ fun MainScreen(modifier: Modifier){
         composable("home") { HomeScreen(navController) }
 
         // Vulkan 页面的路由
-        composable("vulkan") {
+        composable("VK") {
             VulkanViewScreen(navController)
         }
     }

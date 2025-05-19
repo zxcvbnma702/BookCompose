@@ -28,3 +28,8 @@
 
 // A macro to check value is VK_SUCCESS
 #define VK_CHECK(x) CALL_VK(x)
+
+// A marco to define JNI function
+#define JNI_TYPE(retType, name) \
+    JNIEXPORT retType JNICALL \
+        Java_com_tal_xes_vulkan_utils_JniUtils_##name

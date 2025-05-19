@@ -29,7 +29,7 @@ fun HomeScreen(navController: NavController) {
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-        Button(onClick = {navController.navigate("vulkan")}) {
+        Button(onClick = {navController.navigate("VK")}) {
             Text(text = "Jump to Vulkan Page")
         }
     }
