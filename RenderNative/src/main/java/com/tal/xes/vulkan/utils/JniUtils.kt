@@ -17,9 +17,18 @@ object JniUtils {
         System.loadLibrary("RenderNative")
     }
 
+    fun createNativeRenderingHandle(assetManager: AssetManager, vertexShader: String, fragmentShader: String): Long{
+        mNativeHandle = create(assetManager, vertexShader, fragmentShader)
+        return mNativeHandle
+    }
+
+    fun transferSurface(surface: Surface){
+        transferSurface(surface, mNativeHandle)
+    }
+
     external fun stringFromJNI(): String
 
-    external fun create(assetManager: AssetManager, vertexShader: String, fragmentShader: String): Long
+    private external fun create(assetManager: AssetManager, vertexShader: String, fragmentShader: String): Long
 
-    external fun transferSurface(surface: Surface, nativeHandle: Long)
+    private external fun transferSurface(surface: Surface, nativeHandle: Long)
 }

@@ -5,5 +5,5 @@
 #include "VulkanRender.hpp"
 
 void VulkanRender::run(ANativeWindow *window) {
-
+    this->window = window;
 }
