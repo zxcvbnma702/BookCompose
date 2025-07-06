@@ -35,7 +35,7 @@ std::vector<std::string> VkCore::Context::enumerateInstanceLayers(bool printEnum
     return instanceLayerNames;
 }
 
-std::vector<std::string> VkCore::Context::enumerateInstanceExtensions() {
+std::vector<std::string> VkCore::Context::enumerateInstanceExtensions() const {
     uint32_t extensionCount{0};
     VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr));
     std::vector<VkExtensionProperties> extensions(extensionCount);

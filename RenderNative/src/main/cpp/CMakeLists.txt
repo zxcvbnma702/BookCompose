@@ -33,7 +33,7 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         # List C/C++ source files with relative paths to this CMakeLists.txt.
         native-lib.cpp
         VK/VulkanRender.cpp
-        package/volk/volk.c
+#        package/volk/volk.c
         ${VKCORE_SOURCES})
 
 # Specifies libraries CMake should link to your target library. You

@@ -58,7 +58,7 @@ namespace VkCore{
         [[nodiscard]] static std::vector<std::string> enumerateInstanceLayers(
                 bool printEnumerations_ = false);
 
-        [[nodiscard]] std::vector<std::string> enumerateInstanceExtensions();
+        [[nodiscard]] std::vector<std::string> enumerateInstanceExtensions() const;
 
         [[nodiscard]] std::vector<PhysicalDevice> enumeratePhysicalDevices(
                 const std::vector<std::string>& requestedExtensions, bool enableRayTracing) const;
@@ -84,6 +84,10 @@ namespace VkCore{
         std::unordered_set<std::string> enabledLayers_;
         // 可用的实例扩展
         std::unordered_set<std::string> enabledInstanceExtensions_;
+
+#if defined(VK_EXT_debug_utils)
+        VkDebugUtilsMessengerEXT messenger_ = VK_NULL_HANDLE;
+#endif
     };
 }
 

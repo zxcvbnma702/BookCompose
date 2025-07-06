@@ -21,10 +21,10 @@ namespace VkCore{
                                 const std::vector<std::string>& requestedExtensions,
                                 bool printEnumerations = false, bool enableRayTracing = false);
     private:
-        VkPhysicalDeviceProperties2 properties_ = {
-                .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
-                .pNext = &rayTracingPipelineProperties_,
-        };
+//        VkPhysicalDeviceProperties2 properties_ = {
+//                .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
+//                .pNext = &rayTracingPipelineProperties_,
+//        };
     };
 }
 
