@@ -5,7 +5,8 @@
 #pragma once
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_STATIC
-
+#include <vulkan/vulkan.h>
+#include <vulkan/vulkan_android.h>
 #include <android/log.h>
 #include <cassert>
 #include <cstdio>
@@ -13,6 +14,7 @@
 #define APP_NAME "RENDER-LEARNING"
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, APP_NAME, "------|" __VA_ARGS__))
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, APP_NAME,"------|" __VA_ARGS__))
+#define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, APP_NAME,"------|" __VA_ARGS__))
 
 #define CALL_VK(func)                                         \
   if (VK_SUCCESS != (func)) {                                 \

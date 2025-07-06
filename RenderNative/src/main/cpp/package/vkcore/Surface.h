@@ -5,8 +5,7 @@
 #ifndef BOOKCOMPOSE_SURFACE_H
 #define BOOKCOMPOSE_SURFACE_H
 
-#include <vulkan/vulkan.h>
-#include <vulkan/vulkan_android.h>
+#include "Log.h"
 #include "Window.h"
 
 namespace VkCore {

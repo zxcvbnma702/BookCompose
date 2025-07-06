@@ -10,6 +10,34 @@
 #include "Log.h"
 #include "../volk/volk.h"
 #include "Surface.h"
+#include "PhysicalDevice.h"
+
+namespace {
+#if defined(VK_EXT_debug_utils)
+    VkBool32 VKAPI_PTR debugMessengerCallback(
+            VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+            VkDebugUtilsMessageTypeFlagsEXT messageTypes,
+            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
+        if (messageSeverity & (VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)) {
+            LOGE("debugMessengerCallback : MessageCode is %s & Message is %s",
+                 pCallbackData->pMessageIdName, pCallbackData->pMessage);
+#if defined(_WIN32)
+            __debugbreak();
+#else
+            raise(SIGTRAP);
+#endif
+        } else if (messageSeverity & (~VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)) {
+            LOGW("debugMessengerCallback : MessageCode is %s & Message is %s",
+                 pCallbackData->pMessageIdName, pCallbackData->pMessage);
+        } else {
+            LOGI("debugMessengerCallback : MessageCode is %s & Message is %s",
+                 pCallbackData->pMessageIdName, pCallbackData->pMessage);
+        }
+
+        return VK_FALSE;
+    }
+#endif
+}  // namespace
 
 namespace VkCore{
     class Context final{
@@ -32,6 +60,13 @@ namespace VkCore{
 
         [[nodiscard]] std::vector<std::string> enumerateInstanceExtensions();
 
+        [[nodiscard]] std::vector<PhysicalDevice> enumeratePhysicalDevices(
+                const std::vector<std::string>& requestedExtensions, bool enableRayTracing) const;
+
+        [[nodiscard]] PhysicalDevice choosePhysicalDevice(
+                std::vector<PhysicalDevice>&& devices,
+                const std::vector<std::string>& deviceExtensions) const;
+
     private:
         const VkApplicationInfo applicationInfo_ = {
                 .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
@@ -43,6 +78,7 @@ namespace VkCore{
         VkInstance instance_ = VK_NULL_HANDLE;
         bool printEnumerations_ = false;
         VkSurfaceKHR surface_ = VK_NULL_HANDLE;
+        PhysicalDevice physicalDevice_;
 
         // 可用的实例层
         std::unordered_set<std::string> enabledLayers_;
