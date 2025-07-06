@@ -1,13 +1,10 @@
 package com.tal.xes.vulkan
 
 import android.graphics.SurfaceTexture
-import android.os.Build
 import android.util.Log
 import android.view.Surface
-import android.view.SurfaceView
 import android.view.TextureView
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.rememberCoroutineScope
@@ -17,11 +14,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import com.tal.xes.vulkan.utils.JniUtils
 import com.tal.xes.vulkan.utils.createNativeHandleFlow
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Composable
 fun VulkanViewScreen(navController: NavController) {
