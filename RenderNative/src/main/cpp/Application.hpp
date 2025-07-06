@@ -11,7 +11,7 @@
 
 #include <string>
 
-#include "Log.h"
+#include "package/vkcore/Log.h"
 
 class Application {
 public:
