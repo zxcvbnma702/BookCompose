@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "Log.h"
+#include "Utils.h"
 
 namespace VkCore{
     class PhysicalDevice final{
@@ -25,6 +26,16 @@ namespace VkCore{
 //                .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
 //                .pNext = &rayTracingPipelineProperties_,
 //        };
+
+    private:
+        VkPhysicalDevice physicalDevice_ = VK_NULL_HANDLE;
+        // 设备支持的扩展
+        std::vector<std::string> extensions_;
+
+        // 队列族属性
+        std::vector<VkQueueFamilyProperties> queueFamilyProperties_;
+        // 要使用的扩展
+        std::unordered_set<std::string> enabledExtensions_;
     };
 }
 
