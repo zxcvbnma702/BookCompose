@@ -336,8 +336,56 @@ VkCore::Context::Context(Window &window, const std::vector<std::string> &request
 
         VK_CHECK(vkCreateDevice(physicalDevice_.vkPhysicalDevice(), &deviceCreateInfo, nullptr,
                                 &device_))
-
     }
+
+    if (physicalDevice_.graphicsFamilyIndex().has_value()) {
+        if (physicalDevice_.graphicsFamilyCount() > 0) {
+            graphicsQueues_.resize(physicalDevice_.graphicsFamilyCount(), VK_NULL_HANDLE);
+
+            for (int i = 0; i < graphicsQueues_.size(); ++i) {
+                vkGetDeviceQueue(device_, physicalDevice_.graphicsFamilyIndex().value(),
+                                 uint32_t(i), &graphicsQueues_[i]);
+            }
+        }
+    }
+    if (physicalDevice_.computeFamilyIndex().has_value()) {
+        if (physicalDevice_.computeFamilyCount() > 0) {
+            computeQueues_.resize(physicalDevice_.computeFamilyCount(), VK_NULL_HANDLE);
+
+            for (int i = 0; i < computeQueues_.size(); ++i) {
+                vkGetDeviceQueue(device_, physicalDevice_.computeFamilyIndex().value(),
+                                 uint32_t(i), &computeQueues_[i]);
+            }
+        }
+    }
+    if (physicalDevice_.transferFamilyIndex().has_value()) {
+        if (physicalDevice_.transferFamilyCount() > 0) {
+            transferQueues_.resize(physicalDevice_.transferFamilyCount(), VK_NULL_HANDLE);
+
+            for (int i = 0; i < transferQueues_.size(); ++i) {
+                vkGetDeviceQueue(device_, physicalDevice_.transferFamilyIndex().value(),
+                                 uint32_t(i), &transferQueues_[i]);
+            }
+        }
+    }
+    if (physicalDevice_.sparseFamilyIndex().has_value()) {
+        if (physicalDevice_.sparseFamilyCount() > 0) {
+            sparseQueues_.resize(physicalDevice_.sparseFamilyCount(), VK_NULL_HANDLE);
+
+            for (int i = 0; i < sparseQueues_.size(); ++i) {
+                vkGetDeviceQueue(device_, physicalDevice_.sparseFamilyIndex().value(),
+                                 uint32_t(i), &sparseQueues_[i]);
+            }
+        }
+    }
+
+    if (physicalDevice_.presentationFamilyIndex().has_value()) {
+        vkGetDeviceQueue(device_, physicalDevice_.presentationFamilyIndex().value(), 0,
+                         &presentationQueue_);
+    }
+
+    // Initialize volk for this device
+    volkLoadDevice(device_);
     //todo
 }
 

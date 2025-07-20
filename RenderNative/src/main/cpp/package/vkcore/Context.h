@@ -86,6 +86,14 @@ namespace VkCore{
         VkSurfaceKHR surface_ = VK_NULL_HANDLE;
         PhysicalDevice physicalDevice_;
         VkDevice device_ = VK_NULL_HANDLE;
+        VkQueue presentationQueue_ = VK_NULL_HANDLE;
+
+        // these are extra queues which can be used for any other async stuff if
+        // required, these won't contain above queues
+        std::vector<VkQueue> graphicsQueues_;
+        std::vector<VkQueue> computeQueues_;
+        std::vector<VkQueue> transferQueues_;
+        std::vector<VkQueue> sparseQueues_;
 
         // 可用的实例层
         std::unordered_set<std::string> enabledLayers_;
