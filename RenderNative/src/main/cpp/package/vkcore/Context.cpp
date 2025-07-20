@@ -438,5 +438,19 @@ void VkCore::Context::createVkDevice(VkPhysicalDevice vkPhysicalDevice,
 }
 
 VkCore::Context::~Context() {
+    vkDeviceWaitIdle(device_);
 
+//    swapchain_.reset();
+//    vmaDestroyAllocator(allocator_);
+    vkDestroyDevice(device_, nullptr);
+    if (surface_ != VK_NULL_HANDLE) {
+        vkDestroySurfaceKHR(instance_, surface_, nullptr);
+    }
+#if defined(VK_EXT_debug_utils)
+    if (enabledInstanceExtensions_.find(VK_EXT_DEBUG_UTILS_EXTENSION_NAME) != enabledInstanceExtensions_.end()) {
+        vkDestroyDebugUtilsMessengerEXT(instance_, messenger_, nullptr);
+    }
+#endif
+
+    vkDestroyInstance(instance_, nullptr);
 }
