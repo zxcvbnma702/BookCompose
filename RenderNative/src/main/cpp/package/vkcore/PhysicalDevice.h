@@ -134,6 +134,10 @@ namespace VkCore{
         [[nodiscard]] uint32_t presentationFamilyCount() const {
             return presentationQueueCount_;
         }
+
+        const std::unordered_set<std::string>& enabledExtensions() const {
+            return enabledExtensions_;
+        }
     private:
 //        VkPhysicalDeviceProperties2 properties_ = {
 //                .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,

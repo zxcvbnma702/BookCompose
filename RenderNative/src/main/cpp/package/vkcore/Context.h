@@ -54,6 +54,12 @@ namespace VkCore{
                          const std::vector<std::string>& requestedLayers,
                          const std::vector<std::string>& requestedInstanceExtensions,
                          bool printEnumerations = false, const std::string& name = "");
+
+        void createVkDevice(VkPhysicalDevice vkPhysicalDevice,
+                            const std::vector<std::string>& requestedDeviceExtensions,
+                            VkQueueFlags requestedQueueTypes, const std::string& name = "");
+
+        ~Context();
     private:
         [[nodiscard]] static std::vector<std::string> enumerateInstanceLayers(
                 bool printEnumerations_ = false);
@@ -79,6 +85,7 @@ namespace VkCore{
         bool printEnumerations_ = false;
         VkSurfaceKHR surface_ = VK_NULL_HANDLE;
         PhysicalDevice physicalDevice_;
+        VkDevice device_ = VK_NULL_HANDLE;
 
         // 可用的实例层
         std::unordered_set<std::string> enabledLayers_;

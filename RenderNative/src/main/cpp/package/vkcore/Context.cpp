@@ -2,6 +2,7 @@
 // Created by nio on 2025/7/6.
 //
 #define VOLK_IMPLEMENTATION
+
 #include "Context.h"
 
 #include <algorithm>
@@ -45,13 +46,13 @@ std::vector<std::string> VkCore::Context::enumerateInstanceExtensions() const {
     std::transform(extensions.begin(), extensions.end(),
                    std::back_inserter(extensionNames),
                    [](const VkExtensionProperties &extensionProperties) {
-        return std::string(extensionProperties.extensionName);
-    });
+                       return std::string(extensionProperties.extensionName);
+                   });
 
     if (printEnumerations_) {
         std::cerr << "Found " << extensionCount << " extension(s) for the instance"
                   << std::endl;
-        for (const auto& layer : extensionNames) {
+        for (const auto &layer: extensionNames) {
             std::cerr << "\t" << layer << std::endl;
         }
     }
@@ -63,7 +64,7 @@ VkCore::Context::Context(const VkApplicationInfo &appInfo,
                          const std::vector<std::string> &requestedLayers,
                          const std::vector<std::string> &requestedInstanceExtensions,
                          bool printEnumerations, const std::string &name)
-                         : applicationInfo_{appInfo}, printEnumerations_{printEnumerations}{
+        : applicationInfo_{appInfo}, printEnumerations_{printEnumerations} {
     /**
      * This will attempt to load Vulkan loader from the system;
      * if this function returns VK_SUCCESS you can proceed to create Vulkan instance.
@@ -98,7 +99,8 @@ VkCore::Context::Context(const VkApplicationInfo &appInfo,
         const VkValidationFeaturesEXT features = {
                 .sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT,
                 .pNext = nullptr,
-                .enabledValidationFeatureCount = sizeof(validationFeaturesEnabled) / sizeof(VkValidationFeatureEnableEXT),
+                .enabledValidationFeatureCount = sizeof(validationFeaturesEnabled) /
+                                                 sizeof(VkValidationFeatureEnableEXT),
                 . pEnabledValidationFeatures = validationFeaturesEnabled,
         };
 
@@ -125,7 +127,8 @@ VkCore::Context::Context(const VkApplicationInfo &appInfo,
     volkLoadInstance(instance_);
 
 #if defined(VK_EXT_debug_utils)
-    if (enabledInstanceExtensions_.find(VK_EXT_DEBUG_UTILS_EXTENSION_NAME) != enabledInstanceExtensions_.end()) {
+    if (enabledInstanceExtensions_.find(VK_EXT_DEBUG_UTILS_EXTENSION_NAME) !=
+        enabledInstanceExtensions_.end()) {
         const VkDebugUtilsMessengerCreateInfoEXT messengerInfo = {
                 .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
                 .flags = 0,
@@ -154,12 +157,12 @@ VkCore::Context::Context(const VkApplicationInfo &appInfo,
     // todo
 }
 
-VkCore::Context::Context(Window& window, const std::vector<std::string> &requestedLayers,
+VkCore::Context::Context(Window &window, const std::vector<std::string> &requestedLayers,
                          const std::vector<std::string> &requestedInstanceExtensions,
                          const std::vector<std::string> &requestedDeviceExtensions,
                          VkQueueFlags requestedQueueTypes, bool printEnumerations,
                          bool enableRayTracing, const std::string &name) :
-                         printEnumerations_{printEnumerations} {
+        printEnumerations_{printEnumerations} {
 
     VK_CHECK(volkInitialize());
 
@@ -167,12 +170,12 @@ VkCore::Context::Context(Window& window, const std::vector<std::string> &request
     enabledInstanceExtensions_ =
             util::filterExtensions(enumerateInstanceExtensions(), requestedInstanceExtensions);
 
-    std::vector<const char*> instanceLayers(enabledLayers_.size());
+    std::vector<const char *> instanceLayers(enabledLayers_.size());
     std::transform(enabledLayers_.begin(), enabledLayers_.end(), instanceLayers.begin(),
                    std::mem_fn(&std::string::c_str));
 
     {
-        std::vector<const char*> instanceExtensions(enabledInstanceExtensions_.size());
+        std::vector<const char *> instanceExtensions(enabledInstanceExtensions_.size());
         std::transform(enabledInstanceExtensions_.begin(), enabledInstanceExtensions_.end(),
                        instanceExtensions.begin(), std::mem_fn(&std::string::c_str));
 
@@ -190,8 +193,8 @@ VkCore::Context::Context(Window& window, const std::vector<std::string> &request
 
 #if defined(VK_EXT_layer_settings)
         const std::string layer_name = "VK_LAYER_KHRONOS_validation";
-        const std::array<const char*, 1> setting_debug_action = {"VK_DBG_LAYER_ACTION_BREAK"};
-        const std::array<const char*, 1> setting_gpu_based_action = {
+        const std::array<const char *, 1> setting_debug_action = {"VK_DBG_LAYER_ACTION_BREAK"};
+        const std::array<const char *, 1> setting_gpu_based_action = {
                 "GPU_BASED_DEBUG_PRINTF"};
         const std::array<VkBool32, 1> setting_printf_to_stdout = {VK_TRUE};
         const std::array<VkBool32, 1> setting_printf_verbose = {VK_TRUE};
@@ -259,7 +262,8 @@ VkCore::Context::Context(Window& window, const std::vector<std::string> &request
     volkLoadInstance(instance_);
 
 #if defined(VK_EXT_debug_utils)
-    if (enabledInstanceExtensions_.find(VK_EXT_DEBUG_UTILS_EXTENSION_NAME) != enabledInstanceExtensions_.end()) {
+    if (enabledInstanceExtensions_.find(VK_EXT_DEBUG_UTILS_EXTENSION_NAME) !=
+        enabledInstanceExtensions_.end()) {
         const VkDebugUtilsMessengerCreateInfoEXT messengerInfo = {
                 .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
                 .flags = 0,
@@ -287,6 +291,53 @@ VkCore::Context::Context(Window& window, const std::vector<std::string> &request
             enumeratePhysicalDevices(requestedDeviceExtensions, enableRayTracing),
             requestedDeviceExtensions);
 
+    physicalDevice_.reserveQueues(requestedQueueTypes | VK_QUEUE_GRAPHICS_BIT, surface_);
+
+    {
+        // create VkDevice
+        std::vector<const char *> deviceExtensions(physicalDevice_.enabledExtensions().size());
+        std::transform(physicalDevice_.enabledExtensions().begin(),
+                       physicalDevice_.enabledExtensions().end(), deviceExtensions.begin(),
+                       std::mem_fn(&std::string::c_str));
+
+        const auto familyIndices = physicalDevice_.queueFamilyIndexAndCount();
+
+        std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+
+        std::vector<std::vector<float>> prioritiesForAllFamilies(familyIndices.size());
+        size_t index = 0;
+        for (const auto &[familyIndex, queueCount]: familyIndices) {
+            // 对这个队列族，创建一个长度为 queueCount 的 float 数组，所有值都设为 1.0f，表示 最高优先级。
+            prioritiesForAllFamilies[index] = std::vector<float>(queueCount, 1.0f);
+            queueCreateInfos.emplace_back(VkDeviceQueueCreateInfo{
+                    .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+                    .pNext = nullptr,
+                    .flags = 0,
+                    .queueFamilyIndex = familyIndex,
+                    .queueCount = queueCount,
+                    .pQueuePriorities = prioritiesForAllFamilies[index].data()
+            });
+            ++index;
+        }
+
+        // todo
+
+        const VkDeviceCreateInfo deviceCreateInfo = {
+                .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+                .pNext = nullptr,
+                .flags = 0,
+                .queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()),
+                .pQueueCreateInfos = queueCreateInfos.data(),
+                .enabledLayerCount = static_cast<uint32_t>(instanceLayers.size()),
+                .ppEnabledLayerNames = instanceLayers.data(),
+                .enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size()),
+                .ppEnabledExtensionNames = deviceExtensions.data(),
+        };
+
+        VK_CHECK(vkCreateDevice(physicalDevice_.vkPhysicalDevice(), &deviceCreateInfo, nullptr,
+                                &device_))
+
+    }
     //todo
 }
 
@@ -309,16 +360,16 @@ VkCore::Context::enumeratePhysicalDevices(const std::vector<std::string> &reques
     std::vector<PhysicalDevice> physicalDevices;
     for (const auto device: devices) {
         physicalDevices.emplace_back(device, surface_, requestedExtensions,
-                                                    printEnumerations_, enableRayTracing);
+                                     printEnumerations_, enableRayTracing);
     }
 
     return physicalDevices;
 }
 
 VkCore::PhysicalDevice VkCore::Context::choosePhysicalDevice(std::vector<PhysicalDevice> &&devices,
-                                                     const std::vector<std::string> &deviceExtensions) const {
+                                                             const std::vector<std::string> &deviceExtensions) const {
 
-    (void)deviceExtensions;
+    (void) deviceExtensions;
     ASSERT(!devices.empty(), "The list of devices can't be empty");
 
 
@@ -330,4 +381,14 @@ VkCore::PhysicalDevice VkCore::Context::choosePhysicalDevice(std::vector<Physica
 //        }
 //    }
     return devices[0];
+}
+
+void VkCore::Context::createVkDevice(VkPhysicalDevice vkPhysicalDevice,
+                                     const std::vector<std::string> &requestedDeviceExtensions,
+                                     VkQueueFlags requestedQueueTypes, const std::string &name) {
+
+}
+
+VkCore::Context::~Context() {
+
 }
