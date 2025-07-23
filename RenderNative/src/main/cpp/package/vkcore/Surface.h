@@ -5,7 +5,7 @@
 #ifndef BOOKCOMPOSE_SURFACE_H
 #define BOOKCOMPOSE_SURFACE_H
 
-#include "Log.h"
+#include "Common.h"
 #include "Window.h"
 
 namespace VkCore {

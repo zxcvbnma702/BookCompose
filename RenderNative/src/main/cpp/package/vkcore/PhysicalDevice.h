@@ -11,7 +11,7 @@
 #include <set>
 #include <vector>
 
-#include "Log.h"
+#include "Common.h"
 #include "Utils.h"
 
 namespace VkCore{

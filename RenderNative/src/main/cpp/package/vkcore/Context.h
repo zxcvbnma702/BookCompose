@@ -4,11 +4,9 @@
 
 #ifndef BOOKCOMPOSE_CONTEXT_H
 #define BOOKCOMPOSE_CONTEXT_H
-#define VK_NO_PROTOTYPES
+
 #include "Utils.h"
-#include "vulkan/vulkan.h"
-#include "Log.h"
-#include "../volk/volk.h"
+#include "Common.h"
 #include "Surface.h"
 #include "PhysicalDevice.h"
 

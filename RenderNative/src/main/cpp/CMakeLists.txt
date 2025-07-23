@@ -36,6 +36,8 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
 #        package/volk/volk.c
         ${VKCORE_SOURCES})
 
+add_definitions(-DVK_NO_PROTOTYPES)
+
 # Specifies libraries CMake should link to your target library. You
 # can link libraries from various origins, such as libraries defined in this
 # build script, prebuilt third-party libraries, or Android system libraries.
