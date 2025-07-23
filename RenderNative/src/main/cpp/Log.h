@@ -5,8 +5,6 @@
 #pragma once
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_STATIC
-#include <vulkan/vulkan.h>
-#include <vulkan/vulkan_android.h>
 #include <android/log.h>
 #include <cassert>
 #include <cstdio>
