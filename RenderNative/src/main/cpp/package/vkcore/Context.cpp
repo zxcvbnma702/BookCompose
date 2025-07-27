@@ -153,8 +153,6 @@ VkCore::Context::Context(const VkApplicationInfo &appInfo,
 //    if (device_) {
 //        setVkObjectname(instance_, VK_OBJECT_TYPE_INSTANCE, "Instance: " + name);
 //    }
-
-    // todo
 }
 
 VkCore::Context::Context(Window &window, const std::vector<std::string> &requestedLayers,
@@ -320,7 +318,7 @@ VkCore::Context::Context(Window &window, const std::vector<std::string> &request
             ++index;
         }
 
-        // todo
+        // todo VulkanFeatureChain
 
         const VkDeviceCreateInfo deviceCreateInfo = {
                 .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
@@ -386,6 +384,9 @@ VkCore::Context::Context(Window &window, const std::vector<std::string> &request
 
     // Initialize volk for this device
     volkLoadDevice(device_);
+
+    // Create the allocator
+    createMemoryAllocator();
     //todo
 }
 
@@ -434,14 +435,118 @@ VkCore::PhysicalDevice VkCore::Context::choosePhysicalDevice(std::vector<Physica
 void VkCore::Context::createVkDevice(VkPhysicalDevice vkPhysicalDevice,
                                      const std::vector<std::string> &requestedDeviceExtensions,
                                      VkQueueFlags requestedQueueTypes, const std::string &name) {
+    physicalDevice_ = PhysicalDevice(vkPhysicalDevice, VK_NULL_HANDLE, requestedDeviceExtensions, printEnumerations_,
+                                     false);
 
+    physicalDevice_.reserveQueues(requestedQueueTypes | VK_QUEUE_GRAPHICS_BIT, VK_NULL_HANDLE);
+
+    {
+        // create VkDevice
+        std::vector<const char *> deviceExtensions(physicalDevice_.enabledExtensions().size());
+        std::transform(physicalDevice_.enabledExtensions().begin(),
+                       physicalDevice_.enabledExtensions().end(), deviceExtensions.begin(),
+                       std::mem_fn(&std::string::c_str));
+
+        const auto familyIndices = physicalDevice_.queueFamilyIndexAndCount();
+
+        std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+
+        std::vector<std::vector<float>> prioritiesForAllFamilies(familyIndices.size());
+        size_t index = 0;
+        for (const auto &[familyIndex, queueCount]: familyIndices) {
+            // 对这个队列族，创建一个长度为 queueCount 的 float 数组，所有值都设为 1.0f，表示 最高优先级。
+            prioritiesForAllFamilies[index] = std::vector<float>(queueCount, 1.0f);
+            queueCreateInfos.emplace_back(VkDeviceQueueCreateInfo{
+                    .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+                    .pNext = nullptr,
+                    .flags = 0,
+                    .queueFamilyIndex = familyIndex,
+                    .queueCount = queueCount,
+                    .pQueuePriorities = prioritiesForAllFamilies[index].data()
+            });
+            ++index;
+        }
+
+        // todo VulkanFeatureChain
+
+        std::vector<const char*> instanceLayers(enabledLayers_.size());
+        std::transform(enabledLayers_.begin(), enabledLayers_.end(), instanceLayers.begin(),
+                       std::mem_fn(&std::string::c_str));
+
+        const VkDeviceCreateInfo deviceCreateInfo = {
+                .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+                .pNext = nullptr,
+                .flags = 0,
+                .queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()),
+                .pQueueCreateInfos = queueCreateInfos.data(),
+                .enabledLayerCount = static_cast<uint32_t>(instanceLayers.size()),
+                .ppEnabledLayerNames = instanceLayers.data(),
+                .enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size()),
+                .ppEnabledExtensionNames = deviceExtensions.data(),
+        };
+
+        VK_CHECK(vkCreateDevice(physicalDevice_.vkPhysicalDevice(), &deviceCreateInfo, nullptr,
+                                &device_))
+    }
+
+    if (physicalDevice_.graphicsFamilyIndex().has_value()) {
+        if (physicalDevice_.graphicsFamilyCount() > 0) {
+            graphicsQueues_.resize(physicalDevice_.graphicsFamilyCount(), VK_NULL_HANDLE);
+
+            for (int i = 0; i < graphicsQueues_.size(); ++i) {
+                vkGetDeviceQueue(device_, physicalDevice_.graphicsFamilyIndex().value(),
+                                 uint32_t(i), &graphicsQueues_[i]);
+            }
+        }
+    }
+    if (physicalDevice_.computeFamilyIndex().has_value()) {
+        if (physicalDevice_.computeFamilyCount() > 0) {
+            computeQueues_.resize(physicalDevice_.computeFamilyCount(), VK_NULL_HANDLE);
+
+            for (int i = 0; i < computeQueues_.size(); ++i) {
+                vkGetDeviceQueue(device_, physicalDevice_.computeFamilyIndex().value(),
+                                 uint32_t(i), &computeQueues_[i]);
+            }
+        }
+    }
+    if (physicalDevice_.transferFamilyIndex().has_value()) {
+        if (physicalDevice_.transferFamilyCount() > 0) {
+            transferQueues_.resize(physicalDevice_.transferFamilyCount(), VK_NULL_HANDLE);
+
+            for (int i = 0; i < transferQueues_.size(); ++i) {
+                vkGetDeviceQueue(device_, physicalDevice_.transferFamilyIndex().value(),
+                                 uint32_t(i), &transferQueues_[i]);
+            }
+        }
+    }
+    if (physicalDevice_.sparseFamilyIndex().has_value()) {
+        if (physicalDevice_.sparseFamilyCount() > 0) {
+            sparseQueues_.resize(physicalDevice_.sparseFamilyCount(), VK_NULL_HANDLE);
+
+            for (int i = 0; i < sparseQueues_.size(); ++i) {
+                vkGetDeviceQueue(device_, physicalDevice_.sparseFamilyIndex().value(),
+                                 uint32_t(i), &sparseQueues_[i]);
+            }
+        }
+    }
+
+    if (physicalDevice_.presentationFamilyIndex().has_value()) {
+        vkGetDeviceQueue(device_, physicalDevice_.presentationFamilyIndex().value(), 0,
+                         &presentationQueue_);
+    }
+
+    // Initialize volk for this device
+    volkLoadDevice(device_);
+
+    // Create the allocator
+    createMemoryAllocator();
 }
 
 VkCore::Context::~Context() {
     vkDeviceWaitIdle(device_);
 
 //    swapchain_.reset();
-//    vmaDestroyAllocator(allocator_);
+    vmaDestroyAllocator(allocator_);
     vkDestroyDevice(device_, nullptr);
     if (surface_ != VK_NULL_HANDLE) {
         vkDestroySurfaceKHR(instance_, surface_, nullptr);
@@ -453,4 +558,63 @@ VkCore::Context::~Context() {
 #endif
 
     vkDestroyInstance(instance_, nullptr);
+}
+
+void VkCore::Context::createMemoryAllocator() {
+    const VmaVulkanFunctions vulkanFunctions = {
+            .vkGetInstanceProcAddr = vkGetInstanceProcAddr,
+            .vkGetDeviceProcAddr = vkGetDeviceProcAddr,
+            .vkGetPhysicalDeviceProperties = vkGetPhysicalDeviceProperties,
+            .vkGetPhysicalDeviceMemoryProperties = vkGetPhysicalDeviceMemoryProperties,
+            .vkAllocateMemory = vkAllocateMemory,
+            .vkFreeMemory = vkFreeMemory,
+            .vkMapMemory = vkMapMemory,
+            .vkUnmapMemory = vkUnmapMemory,
+            .vkFlushMappedMemoryRanges = vkFlushMappedMemoryRanges,
+            .vkInvalidateMappedMemoryRanges = vkInvalidateMappedMemoryRanges,
+            .vkBindBufferMemory = vkBindBufferMemory,
+            .vkBindImageMemory = vkBindImageMemory,
+            .vkGetBufferMemoryRequirements = vkGetBufferMemoryRequirements,
+            .vkGetImageMemoryRequirements = vkGetImageMemoryRequirements,
+            .vkCreateBuffer = vkCreateBuffer,
+            .vkDestroyBuffer = vkDestroyBuffer,
+            .vkCreateImage = vkCreateImage,
+            .vkDestroyImage = vkDestroyImage,
+            .vkCmdCopyBuffer = vkCmdCopyBuffer,
+#if VMA_VULKAN_VERSION >= 1001000
+            .vkGetBufferMemoryRequirements2KHR = vkGetBufferMemoryRequirements2,
+    .vkGetImageMemoryRequirements2KHR = vkGetImageMemoryRequirements2,
+    .vkBindBufferMemory2KHR = vkBindBufferMemory2,
+    .vkBindImageMemory2KHR = vkBindImageMemory2,
+    .vkGetPhysicalDeviceMemoryProperties2KHR = vkGetPhysicalDeviceMemoryProperties2,
+#endif
+#if VMA_VULKAN_VERSION >= 1003000
+            .vkGetDeviceBufferMemoryRequirements = vkGetDeviceBufferMemoryRequirements,
+    .vkGetDeviceImageMemoryRequirements = vkGetDeviceImageMemoryRequirements,
+#endif
+    };
+
+    const VmaAllocatorCreateInfo allocInfo = {
+#if defined(VK_KHR_buffer_device_address) && defined(_WIN32)
+            .flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT,
+#endif
+            .physicalDevice = physicalDevice_.vkPhysicalDevice(),
+            .device = device_,
+            .pVulkanFunctions = &vulkanFunctions,
+            .instance = instance_,
+            .vulkanApiVersion = applicationInfo_.apiVersion,
+    };
+    vmaCreateAllocator(&allocInfo, &allocator_);
+}
+
+void VkCore::Context::dumpMemoryStats(const std::string &fileName) const {
+    char* memoryStats{nullptr};
+    ASSERT(allocator_, "Allocator must be initialized");
+    vmaBuildStatsString(allocator_, &memoryStats, true);
+
+    std::ofstream out(fileName);
+    out << std::string(memoryStats);
+    out.close();
+
+    vmaFreeStatsString(allocator_, memoryStats);
 }

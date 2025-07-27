@@ -9,6 +9,7 @@
 #include "Common.h"
 #include "Surface.h"
 #include "PhysicalDevice.h"
+#include "../third_party/vk_mem_alloc.h"
 
 namespace {
 #if defined(VK_EXT_debug_utils)
@@ -66,7 +67,11 @@ namespace VkCore{
         [[nodiscard]] const PhysicalDevice& physicalDevice() const { return physicalDevice_; }
 
         [[nodiscard]] VkQueue graphicsQueue(int index = 0) const { return graphicsQueues_[index]; }
+
+        void dumpMemoryStats(const std::string& fileName) const;
     private:
+        void createMemoryAllocator();
+
         [[nodiscard]] static std::vector<std::string> enumerateInstanceLayers(
                 bool printEnumerations_ = false);
 
@@ -93,6 +98,7 @@ namespace VkCore{
         PhysicalDevice physicalDevice_;
         VkDevice device_ = VK_NULL_HANDLE;
         VkQueue presentationQueue_ = VK_NULL_HANDLE;
+        VmaAllocator allocator_ = nullptr;
 
         // these are extra queues which can be used for any other async stuff if
         // required, these won't contain above queues
