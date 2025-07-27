@@ -15,7 +15,7 @@ namespace VkCore {
 
     class Context;
 
-    class Texture {
+    class Texture final{
     public:
         MOVABLE_ONLY(Texture);
 
