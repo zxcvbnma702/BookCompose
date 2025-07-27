@@ -58,6 +58,14 @@ namespace VkCore{
                             VkQueueFlags requestedQueueTypes, const std::string& name = "");
 
         ~Context();
+
+        [[nodiscard]] VkDevice device() const { return device_; }
+
+        [[nodiscard]] VkInstance instance() const { return instance_; }
+
+        [[nodiscard]] const PhysicalDevice& physicalDevice() const { return physicalDevice_; }
+
+        [[nodiscard]] VkQueue graphicsQueue(int index = 0) const { return graphicsQueues_[index]; }
     private:
         [[nodiscard]] static std::vector<std::string> enumerateInstanceLayers(
                 bool printEnumerations_ = false);
