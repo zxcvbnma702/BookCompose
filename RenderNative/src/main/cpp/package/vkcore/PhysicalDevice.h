@@ -135,7 +135,7 @@ namespace VkCore{
             return presentationQueueCount_;
         }
 
-        const std::unordered_set<std::string>& enabledExtensions() const {
+        [[nodiscard]] const std::unordered_set<std::string>& enabledExtensions() const {
             return enabledExtensions_;
         }
     private:

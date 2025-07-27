@@ -164,7 +164,38 @@ VkImageView
 VkCore::Texture::createImageView(const VkCore::Context &context, VkImageViewType viewType,
                                  VkFormat format, uint32_t numMipLevels, uint32_t layers,
                                  const std::string &name) {
-    return 0;
+    const VkImageAspectFlags aspectMask =
+            isDepth() ? VK_IMAGE_ASPECT_DEPTH_BIT
+                      : (isStencil() ? VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_COLOR_BIT);
+    const VkImageViewCreateInfo imageViewInfo = {
+            .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+            .flags = /*usageFlags_ &
+               VK_IMAGE_USAGE_FRAGMENT_DENSITY_MAP_BIT_EXT ?
+                   VK_IMAGE_VIEW_CREATE_FRAGMENT_DENSITY_MAP_DYNAMIC_BIT_EXT
+                   :*/
+            VkImageViewCreateFlags(0),
+            .image = image_,
+            .viewType = viewType,
+            .format = format,
+            .components =
+                    {
+                            .r = VK_COMPONENT_SWIZZLE_IDENTITY,
+                            .g = VK_COMPONENT_SWIZZLE_IDENTITY,
+                            .b = VK_COMPONENT_SWIZZLE_IDENTITY,
+                            .a = VK_COMPONENT_SWIZZLE_IDENTITY,
+                    },
+            .subresourceRange = {
+                    .aspectMask = aspectMask,
+                    .baseMipLevel = 0,
+                    .levelCount = numMipLevels,
+                    .baseArrayLayer = 0,
+                    .layerCount = multiview_ ? VK_REMAINING_ARRAY_LAYERS : layers,
+            }};
+
+    VkImageView imageView{VK_NULL_HANDLE};
+    VK_CHECK(vkCreateImageView(context_.device(), &imageViewInfo, nullptr, &imageView));
+
+    return imageView;
 }
 
 void VkCore::Texture::addReleaseBarrier(VkCommandBuffer cmdBuffer, uint32_t srcQueueFamilyIndex,
