@@ -68,6 +68,8 @@ namespace VkCore{
 
         [[nodiscard]] VkQueue graphicsQueue(int index = 0) const { return graphicsQueues_[index]; }
 
+        [[nodiscard]] VmaAllocator memoryAllocator() const { return allocator_; }
+
         void dumpMemoryStats(const std::string& fileName) const;
     private:
         void createMemoryAllocator();
