@@ -391,3 +391,7 @@ void VkCore::Texture::transitionImageLayout(VkCommandBuffer cmdBuffer, VkImageLa
 
     layout_ = newLayout;
 }
+
+VkSampleCountFlagBits VkCore::Texture::VkSampleCount() const {
+    return msaaSamples_;
+}
