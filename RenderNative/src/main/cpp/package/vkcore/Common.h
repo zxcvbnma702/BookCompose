@@ -53,4 +53,11 @@
 #define VK_CHECK(x) CALL_VK(x)
 //#include "Log.h"
 
+namespace VkCore{
+    VkImageViewType imageTypeToImageViewType(VkImageType imageType, VkImageCreateFlags flags,
+                                             bool multiview);
+
+    uint32_t bytesPerPixel(VkFormat format);
+}
+
 #endif //BOOKCOMPOSE_COMMON_H
