@@ -13,10 +13,11 @@
 
 namespace {
 #if defined(VK_EXT_debug_utils)
+
     VkBool32 VKAPI_PTR debugMessengerCallback(
             VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
             VkDebugUtilsMessageTypeFlagsEXT messageTypes,
-            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
+            const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData) {
         if (messageSeverity & (VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)) {
             LOGE("debugMessengerCallback : MessageCode is %s & Message is %s",
                  pCallbackData->pMessageIdName, pCallbackData->pMessage);
@@ -35,28 +36,29 @@ namespace {
 
         return VK_FALSE;
     }
+
 #endif
 }  // namespace
 
-namespace VkCore{
-    class Context final{
+namespace VkCore {
+    class Context final {
     public:
         MOVABLE_ONLY(Context)
 
-        explicit Context(Window& window, const std::vector<std::string>& requestedLayers,
-                         const std::vector<std::string>& requestedInstanceExtensions,
-                         const std::vector<std::string>& requestedDeviceExtensions,
+        explicit Context(Window &window, const std::vector<std::string> &requestedLayers,
+                         const std::vector<std::string> &requestedInstanceExtensions,
+                         const std::vector<std::string> &requestedDeviceExtensions,
                          VkQueueFlags requestedQueueTypes, bool printEnumerations = false,
-                         bool enableRayTracing = false, const std::string& name = "");
+                         bool enableRayTracing = false, const std::string &name = "");
 
-        explicit Context(const VkApplicationInfo& appInfo,
-                         const std::vector<std::string>& requestedLayers,
-                         const std::vector<std::string>& requestedInstanceExtensions,
-                         bool printEnumerations = false, const std::string& name = "");
+        explicit Context(const VkApplicationInfo &appInfo,
+                         const std::vector<std::string> &requestedLayers,
+                         const std::vector<std::string> &requestedInstanceExtensions,
+                         bool printEnumerations = false, const std::string &name = "");
 
         void createVkDevice(VkPhysicalDevice vkPhysicalDevice,
-                            const std::vector<std::string>& requestedDeviceExtensions,
-                            VkQueueFlags requestedQueueTypes, const std::string& name = "");
+                            const std::vector<std::string> &requestedDeviceExtensions,
+                            VkQueueFlags requestedQueueTypes, const std::string &name = "");
 
         ~Context();
 
@@ -64,13 +66,34 @@ namespace VkCore{
 
         [[nodiscard]] VkInstance instance() const { return instance_; }
 
-        [[nodiscard]] const PhysicalDevice& physicalDevice() const { return physicalDevice_; }
+        [[nodiscard]] const PhysicalDevice &physicalDevice() const { return physicalDevice_; }
 
         [[nodiscard]] VkQueue graphicsQueue(int index = 0) const { return graphicsQueues_[index]; }
 
         [[nodiscard]] VmaAllocator memoryAllocator() const { return allocator_; }
 
-        void dumpMemoryStats(const std::string& fileName) const;
+        void dumpMemoryStats(const std::string &fileName) const;
+
+        template<typename T>
+        void setVkObjectname(T handle, VkObjectType type, const std::string &name) const {
+#if defined(VK_EXT_debug_utils)
+            if (enabledInstanceExtensions_.find(VK_EXT_DEBUG_UTILS_EXTENSION_NAME) !=
+                enabledInstanceExtensions_.end()) {
+                const VkDebugUtilsObjectNameInfoEXT objectNameInfo = {
+                        .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+                        .objectType = type,
+                        .objectHandle = reinterpret_cast<uint64_t>(handle),
+                        .pObjectName = name.c_str(),
+                };
+                VK_CHECK(vkSetDebugUtilsObjectNameEXT(device_, &objectNameInfo));
+            }
+#else
+            (void)handle;
+            (void)type;
+            (void)name;
+#endif
+        }
+
     private:
         void createMemoryAllocator();
 
@@ -80,11 +103,11 @@ namespace VkCore{
         [[nodiscard]] std::vector<std::string> enumerateInstanceExtensions() const;
 
         [[nodiscard]] std::vector<PhysicalDevice> enumeratePhysicalDevices(
-                const std::vector<std::string>& requestedExtensions, bool enableRayTracing) const;
+                const std::vector<std::string> &requestedExtensions, bool enableRayTracing) const;
 
         [[nodiscard]] PhysicalDevice choosePhysicalDevice(
-                std::vector<PhysicalDevice>&& devices,
-                const std::vector<std::string>& deviceExtensions) const;
+                std::vector<PhysicalDevice> &&devices,
+                const std::vector<std::string> &deviceExtensions) const;
 
     private:
         const VkApplicationInfo applicationInfo_ = {
