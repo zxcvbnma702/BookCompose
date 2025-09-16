@@ -9,7 +9,7 @@
 #include "Common.h"
 #include "Surface.h"
 #include "PhysicalDevice.h"
-#include "../third_party/vk_mem_alloc.h"
+#include "vk_mem_alloc.h"
 
 namespace {
 #if defined(VK_EXT_debug_utils)
