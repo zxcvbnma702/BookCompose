@@ -94,6 +94,11 @@ namespace VkCore {
 #endif
         }
 
+        void beginDebugUtilsLabel(VkCommandBuffer commandBuffer, const std::string& name,
+                                  const glm::vec4& color) const;
+
+        void endDebugUtilsLabel(VkCommandBuffer commandBuffer) const;
+
     private:
         void createMemoryAllocator();
 
