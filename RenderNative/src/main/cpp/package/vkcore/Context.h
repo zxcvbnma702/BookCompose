@@ -2,7 +2,7 @@
 
 #include <any>              // std::any 用于类型擦除，存储任意类型对象
 #include <array>            // std::array 固定大小数组容器
-#include <glm/glm.hpp>      // GLM 数学库，用于向量和矩阵运算
+#include "glm/glm/glm.hpp"      // GLM 数学库，用于向量和矩阵运算
 #include <memory>           // 智能指针 std::shared_ptr, std::unique_ptr
 #include <string>           // std::string 字符串类
 #include <unordered_set>    // std::unordered_set 哈希集合
@@ -87,6 +87,7 @@ class VulkanFeatureChain {
    * - 避免需要遍历整个链来找到末尾
    * - 新功能总是在链的前面，便于调试
    * 
+   * @tparam T 要添加的 Vulkan 功能结构体类型
    * @param nextVulkanChainStruct 要添加的 Vulkan 功能结构体
    * @return 返回添加到链中的结构体的引用，便于进一步配置
    * 
@@ -99,13 +100,14 @@ class VulkanFeatureChain {
    * });
    * ```
    */
-  auto& pushBack(auto nextVulkanChainStruct) {
+  template<typename T>
+  auto& pushBack(T nextVulkanChainStruct) {
     ASSERT(currentIndex_ < CHAIN_SIZE, "Chain is full");  // 检查链是否已满
     data_[currentIndex_] = nextVulkanChainStruct;          // 存储结构体到数组中
 
     // 获取存储在数组中的结构体引用
     // std::any_cast 用于从类型擦除的容器中恢复原始类型
-    auto& next = std::any_cast<decltype(nextVulkanChainStruct)&>(data_[currentIndex_]);
+    auto& next = std::any_cast<T&>(data_[currentIndex_]);
 
     // 将新结构体链接到现有链的前面
     // std::exchange 原子地设置 firstNext_ 为 &next，并返回旧值
