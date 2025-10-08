@@ -15,6 +15,7 @@
 #include "PhysicalDevice.h"  // 物理设备（GPU）管理
 #include "Pipeline.h"        // 渲染管线管理
 #include "ShaderModule.h"    // 着色器模块管理
+#include "Surface.h"         // 跨平台表面创建功能
 #include "SwapChain.h"       // 交换链管理（用于显示）
 #include "Utils.h"           // 实用工具函数
 #include "vk_mem_alloc.h"    // Vulkan 内存分配器（VMA）

@@ -336,23 +336,24 @@ Context::Context(void* window, const std::vector<std::string>& requestedLayers,
   }
 #endif
 
-// 第7步：创建渲染表面（Surface）
-// 表面是 Vulkan 与操作系统窗口系统的连接桥梁，用于显示渲染结果
-#if defined(VK_USE_PLATFORM_WIN32_KHR) && defined(VK_KHR_win32_surface)
-  // 如果在 Windows 平台且启用了 Win32 表面扩展
-  if (enabledInstanceExtensions_.find(VK_KHR_WIN32_SURFACE_EXTENSION_NAME) != enabledInstanceExtensions_.end()) {
-    if (window != nullptr) {
-      // 配置 Windows 表面创建信息
-      const VkWin32SurfaceCreateInfoKHR ci = {
-          .sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,  // 结构体类型
-          .hinstance = GetModuleHandle(NULL),                       // 应用程序实例句柄
-          .hwnd = (HWND)window,                                     // 窗口句柄
-      };
-      // 创建 Windows 平台的 Vulkan 表面
-      VK_CHECK(vkCreateWin32SurfaceKHR(instance_, &ci, nullptr, &surface_));
+  // 第7步：创建渲染表面（Surface）
+  // 表面是 Vulkan 与操作系统窗口系统的连接桥梁，用于显示渲染结果
+  // 使用新的跨平台 Surface 模块来创建表面
+  if (window != nullptr) {
+    try {
+      // 调用跨平台的表面创建函数
+      // 这个函数会根据编译平台自动选择合适的 API：
+      // - Windows: vkCreateWin32SurfaceKHR
+      // - Android: vkCreateAndroidSurfaceKHR  
+      // - Linux: vkCreateXlibSurfaceKHR
+      surface_ = createSurface(instance_, window);
+    } catch (const std::runtime_error& e) {
+      // 如果表面创建失败，记录错误信息并继续
+      // 某些应用可能不需要显示功能（如服务器端计算）
+      LOGW("Failed to create Vulkan surface: %s", e.what());
+      surface_ = VK_NULL_HANDLE;
     }
   }
-#endif
 
   // 第8步：选择物理设备（显卡）
   // 枚举系统中所有支持 Vulkan 的显卡，然后选择最合适的一个
