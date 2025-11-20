@@ -90,11 +90,7 @@ void VulkanRender::initVulkan() {
 
   initialized_ = true;
 
-  // 8. Draw loop
-  // For simplicity, we'll just draw once or loop here?
-  // The run method is called from JNI.
-  // Usually we want a loop.
-  // But for this example, let's just draw a frame.
+  // 8. Draw frame
   drawFrame();
 }
 
@@ -102,8 +98,11 @@ void VulkanRender::createSwapChain() {
   int32_t width = ANativeWindow_getWidth(window);
   int32_t height = ANativeWindow_getHeight(window);
 
+  // Use VK_FORMAT_R8G8B8A8_UNORM (37) which is widely supported on Android.
+  // VK_FORMAT_B8G8R8A8_SRGB (50) or (59) is causing "No map for format" errors
+  // on this device.
   context_->createSwapchain(
-      VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
+      VK_FORMAT_R8G8B8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
       VK_PRESENT_MODE_FIFO_KHR,
       VkExtent2D{static_cast<uint32_t>(width), static_cast<uint32_t>(height)});
 
