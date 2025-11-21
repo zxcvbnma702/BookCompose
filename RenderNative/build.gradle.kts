@@ -13,11 +13,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-//        externalNativeBuild {
-//            cmake {
-//                cppFlags("")
-//            }
-//        }
     }
 
     buildTypes {
@@ -44,6 +39,13 @@ android {
     }
     buildFeatures {
         compose = true
+        shaders = true
+    }
+
+    sourceSets {
+        getByName("main") {
+            shaders.srcDir("src/main/shaders")
+        }
     }
 }
 

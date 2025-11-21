@@ -30,8 +30,8 @@ fun VulkanViewScreen(navController: NavController) {
                         Log.d("VulkanViewScreen", "Surface is available")
                         coroutineScope.launch  {
                             createNativeHandleFlow(context.assets,
-                                "shaders/vert.spv",
-                                "shaders/frag.spv").collect { handle ->
+                                "shaders/triangle.vert.spv",
+                                "shaders/triangle.frag.spv").collect { handle ->
                                 Log.d("VulkanViewScreen", "Vulkan handle: $handle")
                                 JniUtils.transferSurface(Surface(surface))
                             }

@@ -53,3 +53,5 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
         android
         vulkan
         log)
+
+include(cmake_shaders.cmake)

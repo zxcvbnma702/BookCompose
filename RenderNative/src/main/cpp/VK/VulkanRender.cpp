@@ -127,8 +127,8 @@ void VulkanRender::createRenderPass() {
 
 void VulkanRender::createPipeline() {
   // Load shaders from assets
-  auto vertData = readAsset(assetManager, "shaders/vert.spv");
-  auto fragData = readAsset(assetManager, "shaders/frag.spv");
+  auto vertData = readAsset(assetManager, vertexShader);
+  auto fragData = readAsset(assetManager, fragmentShader);
 
   auto vertShader = std::make_shared<VkCore::ShaderModule>(
       context_.get(), vertData, "main",
