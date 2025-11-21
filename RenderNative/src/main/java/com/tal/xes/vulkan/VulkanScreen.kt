@@ -16,6 +16,7 @@ import com.tal.xes.vulkan.utils.JniUtils
 import com.tal.xes.vulkan.utils.createNativeHandleFlow
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
 
 @Composable
 fun VulkanViewScreen(navController: NavController) {
@@ -28,7 +29,7 @@ fun VulkanViewScreen(navController: NavController) {
                     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
                         // Surface is ready, start rendering
                         Log.d("VulkanViewScreen", "Surface is available")
-                        coroutineScope.launch  {
+                        coroutineScope.launch(Dispatchers.IO) {
                             createNativeHandleFlow(context.assets,
                                 "shaders/triangle.vert.spv",
                                 "shaders/triangle.frag.spv").collect { handle ->

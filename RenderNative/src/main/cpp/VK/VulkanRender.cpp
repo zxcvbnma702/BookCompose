@@ -6,6 +6,7 @@
 #include <android/asset_manager.h>
 #include <android/native_window.h>
 #include <array>
+#include <chrono>
 #include <memory>
 #include <string>
 #include <vector>
@@ -36,6 +37,11 @@ VulkanRender::VulkanRender(AAssetManager *assetManager,
 void VulkanRender::run(ANativeWindow *window) {
   this->window = window;
   initVulkan();
+
+  // Render loop
+  while (true) {
+    drawFrame();
+  }
 }
 
 void VulkanRender::initVulkan() {
@@ -89,9 +95,6 @@ void VulkanRender::initVulkan() {
   createCommandBuffers();
 
   initialized_ = true;
-
-  // 8. Draw frame
-  drawFrame();
 }
 
 void VulkanRender::createSwapChain() {
@@ -146,6 +149,13 @@ void VulkanRender::createPipeline() {
   desc.sampleCount = VK_SAMPLE_COUNT_1_BIT;
   desc.cullMode = VK_CULL_MODE_NONE;
   desc.frontFace = VK_FRONT_FACE_CLOCKWISE;
+
+  // Push Constants
+  VkPushConstantRange pushConstantRange{};
+  pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+  pushConstantRange.offset = 0;
+  pushConstantRange.size = sizeof(float);
+  desc.pushConstants_.push_back(pushConstantRange);
 
   // Viewport and Scissor
   desc.viewport = VkCore::Pipeline::ViewPort(swapchain_->extent());
@@ -207,6 +217,19 @@ void VulkanRender::drawFrame() {
 
   // 4. Bind Pipeline
   pipeline_->bind(cmd);
+
+  // Update Push Constant
+  static auto startTime = std::chrono::high_resolution_clock::now();
+  auto currentTime = std::chrono::high_resolution_clock::now();
+  float time = std::chrono::duration<float, std::chrono::seconds::period>(
+                   currentTime - startTime)
+                   .count();
+
+  // Rotate 90 degrees per second (PI/2 radians)
+  float angle = time * 1.57f;
+
+  pipeline_->updatePushConstant(cmd, VK_SHADER_STAGE_VERTEX_BIT, sizeof(float),
+                                &angle);
 
   // 5. Draw
   vkCmdDraw(cmd, 3, 1, 0, 0);

@@ -755,7 +755,7 @@ class Context final {
    * 
    * @return VkInstance 句柄，不为 null
    */
-  VkInstance instance() const { return instance_; }
+  [[nodiscard]] VkInstance instance() const { return instance_; }
 
   /**
    * 获取 Vulkan 内存分配器
@@ -787,7 +787,7 @@ class Context final {
    * 
    * @return PhysicalDevice 对象的引用，包含所有 GPU 信息
    */
-  const PhysicalDevice& physicalDevice() const;
+  [[nodiscard]] const PhysicalDevice& physicalDevice() const;
 
   // ========================================
   // 显示系统管理方法
@@ -880,7 +880,7 @@ class Context final {
    * }
    * ```
    */
-  Swapchain* swapchain() const;
+  [[nodiscard]] Swapchain* swapchain() const;
 
   /**
    * 获取指定索引的图形队列
@@ -910,7 +910,7 @@ class Context final {
    * vkQueueSubmit(secondaryQueue, 1, &secondarySubmit, secondaryFence);
    * ```
    */
-  VkQueue graphicsQueue(int index = 0) const { return graphicsQueues_[index]; }
+  [[nodiscard]] VkQueue graphicsQueue(int index = 0) const { return graphicsQueues_[index]; }
 
   // ========================================
   // GPU 缓冲区创建方法
@@ -971,7 +971,7 @@ class Context final {
    * );
    * ```
    */
-  std::shared_ptr<Buffer> createBuffer(size_t size, VkBufferUsageFlags flags,
+  [[nodiscard]] std::shared_ptr<Buffer> createBuffer(size_t size, VkBufferUsageFlags flags,
                                        VmaMemoryUsage memoryUsage,
                                        const std::string& name = "") const;
 
@@ -1014,7 +1014,7 @@ class Context final {
    * mappedData->projMatrix = camera.getProjectionMatrix();
    * ```
    */
-  std::shared_ptr<Buffer> createPersistentBuffer(size_t size, VkBufferUsageFlags flags,
+  [[nodiscard]] std::shared_ptr<Buffer> createPersistentBuffer(size_t size, VkBufferUsageFlags flags,
                                                  const std::string& name = "") const;
 
   /**
@@ -1052,7 +1052,7 @@ class Context final {
    * // GPU 端拷贝到最终缓冲区...
    * ```
    */
-  std::shared_ptr<Buffer> createStagingBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
+  [[nodiscard]] std::shared_ptr<Buffer> createStagingBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
                                               const std::string& name = "") const;
 
   /**
