@@ -32,5 +32,9 @@ fun HomeScreen(navController: NavController) {
         Button(onClick = {navController.navigate("VK")}) {
             Text(text = "Jump to Vulkan Page")
         }
+
+        Button(onClick = { navController.navigate("ONNX") }) {
+            Text(text = "Jump to ONNX Inference Page")
+        }
     }
 }

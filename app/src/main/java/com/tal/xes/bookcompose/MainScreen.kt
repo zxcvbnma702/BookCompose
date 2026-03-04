@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.tal.xes.vulkan.VulkanViewScreen
+import com.tal.xes.bookcompose.onnx.OnnxScreen
 
 @Composable
 fun MainScreen(modifier: Modifier){
@@ -22,6 +23,11 @@ fun MainScreen(modifier: Modifier){
         // Vulkan 页面的路由
         composable("VK") {
             VulkanViewScreen(navController)
+        }
+
+        // ONNX 推理页面路由
+        composable("ONNX") {
+            OnnxScreen()
         }
     }
 }
