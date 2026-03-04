@@ -11,4 +11,13 @@ object ModelLoader {
     fun loadModelFromAssets(context: Context, fileName: String): ByteArray {
         return context.assets.open(fileName).use { it.readBytes() }
     }
+
+    /**
+     * Load an ONNX or ORT model file from absolute path.
+     */
+    @Throws(IOException::class)
+    fun loadModelFromFile(basePath: String, relativePath: String): ByteArray {
+        val file = java.io.File(basePath, relativePath)
+        return file.readBytes()
+    }
 }
