@@ -6,14 +6,14 @@ plugins {
 
 android {
     namespace = "com.tal.xes.bookcompose"
-    compileSdk = 35
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
         applicationId = "com.tal.xes.bookcompose"
-        minSdk = 24
-        targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        minSdk = libs.versions.minsdk.get().toInt()
+        targetSdk = libs.versions.targetSdk.get().toInt()
+        versionCode = libs.versions.versionCode.get().toInt()
+        versionName = libs.versions.versionName.get()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -54,6 +54,7 @@ dependencies {
     implementation(project(":BookPage"))
     implementation(project(":RenderNative"))
     implementation(project(":ONNX"))
+    implementation(project(":Liquid"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
